@@ -1,53 +1,46 @@
 # 基于 YOLO11 的海洋温度锋检测方法研究
 
-本项目使用 YOLO11n 从海表温度（Sea Surface Temperature，SST）图像中检测海洋温度锋。本项目整理自毕业设计“基于深度学习的海洋锋检测方法研究”。
+本仓库整理自本科毕业论文《基于深度学习的海洋锋检测方法研究》。项目主要面向海表温度图像中的海洋温度锋检测问题，使用 GHRSST Level 4 海表温度数据构建样本，并将温度锋识别任务转化为目标检测任务，最终采用 YOLO11n 模型实现海洋温度锋区域的自动检测。
 
-原始实验使用了南海区域的 GHRSST Level 4 / MUR-JPL 海表温度数据。整体工作流程如下：
+## 论文与项目说明
 
-1. 读取 NetCDF 格式的 SST 数据。
-2. 裁剪南海区域。
-3. 将 SST 数据切片渲染为图像。
-4. 使用 Sobel 梯度提取候选温度锋区域。
-5. 对候选锋面进行人工筛选，并按照 YOLO 格式进行标注。
-6. 训练并评估 YOLO11n 模型，用于温度锋检测。
+海洋温度锋是海表温度在较小空间范围内发生明显变化的区域，对海洋环境分析、水下目标探测、水下导航和水声通信等具有一定参考意义。传统方法通常依赖梯度、阈值和边缘检测等方式提取锋面，但在复杂海洋背景下，候选区域筛选、目标定位和自动化处理仍存在一定难度。
 
-## 仓库结构
+本项目基于海表温度数据，将温度锋区域作为目标检测对象进行处理。实验中先使用 Sobel 梯度方法提取候选锋面区域，再经过人工筛选与 YOLO 格式标注，最后训练 YOLO11n 模型对温度锋进行检测。
 
-```text
-ocean-temperature-front-detection-yolo11/
-  README.md
-  requirements.txt
-  .gitignore
-  configs/
-  data/
-  src/
-  results/
-  weights/
-  assets/
-```
+## 主要工作
 
-## 环境配置
+* 使用 GHRSST Level 4 / MUR-JPL 海表温度数据作为实验数据来源；
+* 对 NetCDF 格式的 SST 数据进行读取、区域裁剪和图像化处理；
+* 使用 Sobel 算法提取海表温度梯度，生成候选温度锋区域；
+* 对候选锋面进行人工筛选，并制作 YOLO 格式目标检测数据集；
+* 使用 YOLO11n 模型开展训练、验证和测试；
+* 对学习率、输入尺寸和 batch size 等参数进行对比实验；
+* 使用 Precision、Recall、mAP@0.5 和 mAP@0.5:0.95 等指标评价模型效果。
 
-```bash
-pip install -r requirements.txt
-```
-
-如果本地没有 `yolo11n.pt` 文件，Ultralytics 可能会在训练开始时自动下载该模型权重。
-
-## 数据
-
-本仓库仅在 `data/samples/` 中包含少量示例图像和标签文件。
-
-完整数据集应按照以下结构放置：
+## 技术路线
 
 ```text
-data/images/train
-data/images/val
-data/images/test
-data/labels/train
-data/labels/val
-data/labels/test
+GHRSST / MUR-JPL SST 数据
+        ↓
+读取 NetCDF 数据
+        ↓
+裁剪南海研究区域
+        ↓
+生成海表温度图像
+        ↓
+Sobel 梯度提取候选温度锋
+        ↓
+人工筛选与 YOLO 格式标注
+        ↓
+训练 YOLO11n 模型
+        ↓
+模型评估与温度锋检测结果分析
 ```
+
+## 数据与实验设置
+
+原始实验使用 2022 年 1 月至 6 月南海区域的 GHRSST Level 4 海表温度数据。由于原始数据量较大，本仓库仅提供少量示例图像和标签文件，完整数据集需按仓库说明自行整理。
 
 本实验共使用 470 张已标注的海表温度锋图像块：
 
@@ -55,86 +48,33 @@ data/labels/test
 * 验证集：50 张
 * 测试集：50 张
 
-类别定义如下：
-
-```text
-0: front
-```
-
-## 主要命令
-
-查看 GHRSST 文件信息：
-
-```bash
-python src/read_ghrsst.py data/raw --max-files 3
-```
-
-裁剪南海区域：
-
-```bash
-python src/crop_south_china_sea.py --input-dir data/raw --output-dir data/interim/south_china_sea
-```
-
-生成 SST 图像：
-
-```bash
-python src/generate_sst_images.py --input-dir data/interim/south_china_sea --output-dir data/interim/sst_images
-```
-
-生成 Sobel 候选锋面掩膜：
-
-```bash
-python src/sobel_front_detection.py --input-dir data/interim/south_china_sea --output-dir data/interim/sobel_fronts
-```
-
-将二值掩膜转换为 YOLO 标签：
-
-```bash
-python src/generate_yolo_labels.py --mask-dir data/interim/sobel_fronts/masks --label-dir data/interim/yolo_labels
-```
-
-训练 YOLO11n：
-
-```bash
-python src/train_yolo11n.py --config configs/train_yolo11n.yaml
-```
-
-模型评估：
-
-```bash
-python src/evaluate.py --weights weights/best.pt --data configs/data.yaml
-```
-
-模型预测：
-
-```bash
-python src/predict.py --weights weights/best.pt --source data/samples/images
-```
-
-## 实验结果
-
 主要训练设置如下：
 
 * 模型：YOLO11n
-* 训练轮数：30
-* 图像尺寸：512
+* 输入尺寸：512
 * batch size：4
 * 优化器：AdamW
 * 初始学习率：0.0006
 
-最终训练曲线指标如下：
+## 实验结果
 
-* precision：0.67516
-* recall：0.70690
-* mAP@0.5：0.72663
-* mAP@0.5:0.95：0.33825
+在独立测试集上的主要评估结果如下：
 
-独立测试集评估指标如下：
+| 指标           |      结果 |
+| ------------ | ------: |
+| Precision    | 0.62458 |
+| Recall       | 0.67692 |
+| mAP@0.5      | 0.60208 |
+| mAP@0.5:0.95 | 0.26980 |
 
-* precision：0.62458
-* recall：0.67692
-* mAP@0.5：0.60208
-* mAP@0.5:0.95：0.26980
+实验结果表明，YOLO11n 能够在一定程度上识别海表温度图像中的温度锋区域，为基于深度学习的海洋温度锋自动检测提供了一个可行的实现流程。
 
-更多图表结果可在 `results/` 和 `assets/` 中查看。
+## 论文全文
 
+如需查看论文全文，可在 `docs/` 文件夹中查看 PDF 文件：
+
+```text
+docs/thesis.pdf
+```
+
+> 注意：由于原始数据和部分实验文件体积较大，本仓库主要用于展示项目代码结构、处理流程、示例数据和实验结果。
