@@ -1,0 +1,16 @@
+model: yolo11n.pt
+data: configs/data.yaml
+project: runs
+name: yolo11n_front
+
+epochs: 30
+imgsz: 512
+batch: 4
+workers: 0
+optimizer: AdamW
+lr0: 0.0006
+momentum: 0.9
+close_mosaic: 0
+save_period: 10
+plots: true
+exist_ok: true

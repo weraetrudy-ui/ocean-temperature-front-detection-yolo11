@@ -1,0 +1,36 @@
+Experiment summary
+==================
+
+Task: Ocean thermal front detection with YOLO11n
+Class: front
+Dataset: 470 labeled SST front patches from the South China Sea region
+
+Training split
+--------------
+train: 370 images
+val: 50 images
+test: 50 images
+
+Main training setting
+---------------------
+model: YOLO11n
+epochs: 30
+image size: 512
+batch size: 4
+optimizer: AdamW
+initial learning rate: 0.0006
+
+Final training-curve metrics from runs/v3.2_lr=0.0006/time3best0.0006.csv
+-------------------------------------------------------------------------
+epoch: 30
+precision: 0.67516
+recall: 0.70690
+mAP@0.5: 0.72663
+mAP@0.5:0.95: 0.33825
+
+Held-out evaluation from test_model/lr0.0006_imgsz512_batch4/results.csv
+------------------------------------------------------------------------
+precision: 0.62458
+recall: 0.67692
+mAP@0.5: 0.60208
+mAP@0.5:0.95: 0.26980

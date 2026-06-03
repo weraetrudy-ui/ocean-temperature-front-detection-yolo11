@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Local data and generated outputs
+data/images/
+data/labels/
+data/raw/
+data/interim/
+runs/
+outputs/
+*.cache
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Large scientific data
+*.nc
+*.nc4
+*.cdf
+*.npz

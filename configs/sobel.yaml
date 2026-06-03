@@ -1,0 +1,25 @@
+input_dir: data/raw
+output_dir: data/interim/sobel_fronts
+supported_suffixes:
+  - .nc
+  - .nc4
+  - .cdf
+
+sst_var_name:
+lon_range:
+  - 105.0
+  - 120.0
+lat_range:
+  - 0.0
+  - 20.0
+
+gaussian_sigma: 1.2
+gradient_percentile: 97.5
+min_front_pixels: 50
+group_dilation_size: 61
+component_margin_pixels: 40
+area_scale: 3.0
+
+patch_image_size: 1200
+patch_dpi: 150
+max_files:
